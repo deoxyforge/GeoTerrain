@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
-import { IPC_CHANNELS, type IpcResponse } from '../../src/types/ipc';
+import { IPC_CHANNELS } from './channels';
+import type { IpcResponse } from '../../src/types/ipc';
 import type { Project } from '../../src/types/project';
 import type { Coordinate } from '../../src/types/coordinate';
 import type { ImportService } from '../services/ImportService';

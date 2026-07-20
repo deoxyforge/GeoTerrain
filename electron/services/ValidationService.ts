@@ -1,4 +1,5 @@
-import { kinks, polygon } from '@turf/turf';
+import kinks from '@turf/kinks';
+import { polygon } from '@turf/helpers';
 import type { Coordinate } from '../../src/types/coordinate';
 import type { ValidationError, ValidationResult } from '../../src/types/validation';
 

@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
-import { IPC_CHANNELS, type IpcResponse } from '../../src/types/ipc';
+import { IPC_CHANNELS } from './channels';
+import type { IpcResponse } from '../../src/types/ipc';
 import type { SettingService } from '../services/SettingService';
 
 export function registerSettingHandlers(settingService: SettingService): void {

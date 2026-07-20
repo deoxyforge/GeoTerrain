@@ -1,5 +1,6 @@
 import { ipcMain } from 'electron';
-import { IPC_CHANNELS, type IpcResponse } from '../../src/types/ipc';
+import { IPC_CHANNELS } from './channels';
+import type { IpcResponse } from '../../src/types/ipc';
 import type { ReportService } from '../services/ReportService';
 import type { ReportPayload } from '../utils/ReportEngine';
 

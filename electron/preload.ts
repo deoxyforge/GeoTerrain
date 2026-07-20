@@ -1,5 +1,5 @@
 import { contextBridge, ipcRenderer } from 'electron';
-import { IPC_CHANNELS } from '../src/types/ipc';
+import { IPC_CHANNELS } from './ipc/channels';
 import type { ElectronAPI } from '../src/types/ipc';
 
 const api: ElectronAPI = {
