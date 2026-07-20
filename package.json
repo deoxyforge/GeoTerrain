@@ -1,0 +1,98 @@
+{
+  "name": "geo-terrain-analyzer",
+  "version": "1.0.0",
+  "description": "Fully offline desktop GIS application for geospatial polygon analysis",
+  "main": "dist/main/main.js",
+  "author": "GeoTerrain",
+  "license": "MIT",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -k \"npm run dev:vite\" \"npm run dev:electron\"",
+    "dev:vite": "vite",
+    "dev:electron": "wait-on tcp:5173 && tsc -p tsconfig.node.json && electron .",
+    "build": "tsc -p tsconfig.node.json && vite build && electron-builder",
+    "build:vite": "vite build",
+    "build:electron": "tsc -p tsconfig.node.json",
+    "preview": "vite preview",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"src/**/*.{ts,tsx}\" \"electron/**/*.ts\"",
+    "rebuild:sqlite": "electron-rebuild -f -w better-sqlite3"
+  },
+  "dependencies": {
+    "@turf/turf": "^6.5.0",
+    "better-sqlite3": "^9.4.3",
+    "jspdf": "^4.2.1",
+    "proj4": "^2.11.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3",
+    "uuid": "^9.0.0"
+  },
+  "devDependencies": {
+    "@electron/rebuild": "^3.6.0",
+    "@types/better-sqlite3": "^7.6.8",
+    "@types/node": "^20.11.30",
+    "@types/proj4": "^2.5.5",
+    "@types/react": "^18.2.67",
+    "@types/react-dom": "^18.2.22",
+    "@types/uuid": "^9.0.8",
+    "@typescript-eslint/eslint-plugin": "^7.3.1",
+    "@typescript-eslint/parser": "^7.3.1",
+    "@vitejs/plugin-react": "^4.2.1",
+    "autoprefixer": "^10.4.18",
+    "concurrently": "^8.2.2",
+    "electron": "^29.1.4",
+    "electron-builder": "^24.13.3",
+    "eslint": "^8.57.0",
+    "eslint-plugin-react": "^7.34.1",
+    "eslint-plugin-react-hooks": "^4.6.0",
+    "postcss": "^8.4.37",
+    "prettier": "^3.2.5",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.4.2",
+    "vite": "^5.2.0",
+    "wait-on": "^7.2.0"
+  },
+  "build": {
+    "appId": "com.geoterrain.analyzer",
+    "productName": "GeoTerrain Analyzer",
+    "directories": {
+      "output": "release"
+    },
+    "files": [
+      "dist/**/*",
+      "node_modules/**/*",
+      "package.json"
+    ],
+    "win": {
+      "target": [
+        {
+          "target": "nsis",
+          "arch": [
+            "x64"
+          ]
+        },
+        {
+          "target": "portable",
+          "arch": [
+            "x64"
+          ]
+        }
+      ],
+      "icon": "assets/icon.ico"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true
+    },
+    "extraResources": [
+      {
+        "from": "storage",
+        "to": "storage",
+        "filter": [
+          "**/*"
+        ]
+      }
+    ]
+  }
+}

@@ -1,0 +1,32 @@
+appId: com.geoterrain.analyzer
+productName: GeoTerrain Analyzer
+copyright: Copyright © 2024 GeoTerrain
+
+directories:
+  output: release
+  buildResources: assets
+
+files:
+  - dist/**/*
+  - node_modules/**/*
+  - package.json
+
+win:
+  target:
+    - target: nsis
+      arch:
+        - x64
+    - target: portable
+      arch:
+        - x64
+  icon: assets/icon.ico
+
+nsis:
+  oneClick: false
+  allowToChangeInstallationDirectory: true
+  createDesktopShortcut: true
+  createStartMenuShortcut: true
+
+asar: true
+asarUnpack:
+  - node_modules/better-sqlite3/**/*
