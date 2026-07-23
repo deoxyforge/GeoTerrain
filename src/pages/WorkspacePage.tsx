@@ -30,7 +30,7 @@ export default function WorkspacePage() {
   } = useCoordinates();
 
   const { geometry, error: geomError } = useGeometry();
-  const { measurements, isLoading: measLoading, error: measError } = useMeasurements();
+  const { measurements, isLoading: measLoading, error: measError, calculate } = useMeasurements();
   const { hoveredVertexId, selectedVertexId, setHoveredVertexId, setSelectedVertexId } =
     useRendering();
 
@@ -255,7 +255,8 @@ export default function WorkspacePage() {
           <ReportButton />
 
           <button
-            disabled={!isPolygonValid}
+            onClick={calculate}
+            disabled={!isPolygonValid || measLoading}
             title={
               isPolygonValid
                 ? 'Analyze boundary polygon calculations'
@@ -263,7 +264,7 @@ export default function WorkspacePage() {
             }
             className="px-3.5 py-1.5 rounded-lg bg-surface-2 border border-border text-text-secondary disabled:opacity-40 disabled:cursor-not-allowed hover:bg-surface-3 transition-colors text-xs font-semibold tracking-wide"
           >
-            Analyze Polygon
+            {measLoading ? 'Analyzing…' : 'Analyze Polygon'}
           </button>
           <button
             onClick={() => {

@@ -57,6 +57,12 @@ export function MeasurementProvider({ children }: { children: React.ReactNode })
     }
   }, [activeProject, geometry]);
 
+  // ponytail: manual trigger clears cache so calculate() runs fresh
+  const forceCalculate = useCallback(async () => {
+    lastGeometryRef.current = null;
+    await calculate();
+  }, [calculate]);
+
   // Reactively calculate measurements whenever geometry updates
   useEffect(() => {
     calculate();
@@ -68,7 +74,7 @@ export function MeasurementProvider({ children }: { children: React.ReactNode })
         measurements,
         isLoading,
         error,
-        calculate,
+        calculate: forceCalculate,
       }}
     >
       {children}

@@ -1,7 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 
-interface Settings {
-  theme: 'dark' | 'light';
+export interface Settings {
+  theme: 'dark' | 'light' | 'system';
   gridVisibility: boolean;
   vertexLabels: boolean;
   northArrow: boolean;
@@ -16,6 +16,7 @@ interface SettingsContextValue {
   showSettings: boolean;
   setShowSettings: (show: boolean) => void;
   updateSetting: <K extends keyof Settings>(key: K, value: Settings[K]) => Promise<void>;
+  bulkUpdateSettings: (newSettings: Settings) => Promise<void>;
   isLoading: boolean;
   globalError: string | null;
   setGlobalError: (err: string | null) => void;
@@ -23,7 +24,7 @@ interface SettingsContextValue {
 
 const SettingsContext = createContext<SettingsContextValue | null>(null);
 
-const DEFAULT_SETTINGS: Settings = {
+export const DEFAULT_SETTINGS: Settings = {
   theme: 'dark',
   gridVisibility: true,
   vertexLabels: true,
@@ -33,6 +34,14 @@ const DEFAULT_SETTINGS: Settings = {
   autosaveInterval: 10,
   restoreLastProject: true,
 };
+
+// ponytail: resolve effective theme from 'system' using OS media query
+function resolveThemeClass(theme: 'dark' | 'light' | 'system'): 'dark' | 'light' {
+  if (theme === 'system') {
+    return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+  }
+  return theme;
+}
 
 export function SettingsProvider({ children }: { children: React.ReactNode }) {
   const [settings, setSettings] = useState<Settings>(DEFAULT_SETTINGS);
@@ -50,7 +59,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
           const merged: Settings = { ...DEFAULT_SETTINGS };
 
           // Parse and merge values safely
-          if (dbSettings.theme === 'dark' || dbSettings.theme === 'light') {
+          if (dbSettings.theme === 'dark' || dbSettings.theme === 'light' || dbSettings.theme === 'system') {
             merged.theme = dbSettings.theme;
           }
           if (dbSettings.gridVisibility !== undefined) {
@@ -100,12 +109,19 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
   // Sync HTML body theme class reactively
   useEffect(() => {
     const body = document.body;
-    if (settings.theme === 'dark') {
-      body.classList.remove('light');
-      body.classList.add('dark');
-    } else {
-      body.classList.remove('dark');
-      body.classList.add('light');
+    const effective = resolveThemeClass(settings.theme);
+    body.classList.remove('dark', 'light');
+    body.classList.add(effective);
+
+    // If system theme, listen for OS changes
+    if (settings.theme === 'system') {
+      const mq = window.matchMedia('(prefers-color-scheme: dark)');
+      const handler = (e: MediaQueryListEvent) => {
+        body.classList.remove('dark', 'light');
+        body.classList.add(e.matches ? 'dark' : 'light');
+      };
+      mq.addEventListener('change', handler);
+      return () => mq.removeEventListener('change', handler);
     }
   }, [settings.theme]);
 
@@ -123,6 +139,22 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
     []
   );
 
+  const bulkUpdateSettings = useCallback(
+    async (newSettings: Settings) => {
+      setSettings(newSettings);
+      // Persist all changed values
+      try {
+        const keys = Object.keys(newSettings) as (keyof Settings)[];
+        for (const key of keys) {
+          await window.electronAPI.setSetting(key, newSettings[key].toString());
+        }
+      } catch (err) {
+        console.error('Failed to save bulk settings to database', err);
+      }
+    },
+    []
+  );
+
   return (
     <SettingsContext.Provider
       value={{
@@ -130,6 +162,7 @@ export function SettingsProvider({ children }: { children: React.ReactNode }) {
         showSettings,
         setShowSettings,
         updateSetting,
+        bulkUpdateSettings,
         isLoading,
         globalError,
         setGlobalError,

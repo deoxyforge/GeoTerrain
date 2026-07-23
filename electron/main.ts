@@ -93,7 +93,7 @@ function createWindow(): void {
     win.loadURL('http://localhost:5173');
     win.webContents.openDevTools();
   } else {
-    win.loadFile(path.join(__dirname, '../renderer/index.html'));
+    win.loadFile(path.join(__dirname, '../../renderer/index.html'));
   }
 
   win.once('ready-to-show', () => win.show());

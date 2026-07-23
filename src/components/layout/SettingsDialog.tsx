@@ -1,7 +1,17 @@
-import { useSettings } from '../../context/SettingsContext';
+import { useState, useEffect } from 'react';
+import { useSettings, DEFAULT_SETTINGS } from '../../context/SettingsContext';
+import type { Settings } from '../../context/SettingsContext';
 
 export default function SettingsDialog() {
-  const { settings, showSettings, setShowSettings, updateSetting } = useSettings();
+  const { settings, showSettings, setShowSettings, updateSetting, bulkUpdateSettings } = useSettings();
+  const [snapshot, setSnapshot] = useState<Settings | null>(null);
+
+  // Snapshot current settings when dialog opens
+  useEffect(() => {
+    if (showSettings) {
+      setSnapshot({ ...settings });
+    }
+  }, [showSettings]); // eslint-disable-line react-hooks/exhaustive-deps
 
   if (!showSettings) return null;
 
@@ -14,7 +24,10 @@ export default function SettingsDialog() {
             ⚙ Application Settings
           </h2>
           <button
-            onClick={() => setShowSettings(false)}
+            onClick={() => {
+              if (snapshot) bulkUpdateSettings(snapshot);
+              setShowSettings(false);
+            }}
             className="text-text-muted hover:text-text-primary text-xs transition-colors p-1"
           >
             ✕
@@ -32,11 +45,12 @@ export default function SettingsDialog() {
               <span>Color Theme</span>
               <select
                 value={settings.theme}
-                onChange={(e) => updateSetting('theme', e.target.value as 'dark' | 'light')}
+                onChange={(e) => updateSetting('theme', e.target.value as 'dark' | 'light' | 'system')}
                 className="bg-surface-2 border border-border rounded px-2 py-1 focus:outline-none focus:border-accent"
               >
                 <option value="dark">Dark Theme</option>
                 <option value="light">Light Theme</option>
+                <option value="system">System Default</option>
               </select>
             </div>
           </div>
@@ -147,13 +161,30 @@ export default function SettingsDialog() {
         </div>
 
         {/* Footer */}
-        <div className="border-t border-border px-5 py-3 flex items-center justify-end bg-surface-1">
+        <div className="border-t border-border px-5 py-3 flex items-center justify-between bg-surface-1">
           <button
-            onClick={() => setShowSettings(false)}
-            className="px-4 py-1.5 rounded bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition-colors"
+            onClick={() => bulkUpdateSettings(DEFAULT_SETTINGS)}
+            className="px-3 py-1.5 rounded text-xs text-text-muted hover:text-geo-red transition-colors"
           >
-            Apply Settings
+            Reset to Defaults
           </button>
+          <div className="flex gap-2">
+            <button
+              onClick={() => {
+                if (snapshot) bulkUpdateSettings(snapshot);
+                setShowSettings(false);
+              }}
+              className="px-4 py-1.5 rounded bg-surface-2 border border-border text-text-secondary hover:bg-surface-3 text-xs font-semibold transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              onClick={() => setShowSettings(false)}
+              className="px-4 py-1.5 rounded bg-accent hover:bg-accent-hover text-white text-xs font-semibold transition-colors"
+            >
+              Apply Settings
+            </button>
+          </div>
         </div>
       </div>
     </div>
